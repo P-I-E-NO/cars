@@ -19,15 +19,25 @@ const { Client } = require("pg");
         switch(command){
 
             case "up":
-                
+            
                 await conn.query(`
-                    create table if not exists users (
+                    DO $$ BEGIN
+                        create type car_t as enum('small', 'medium', 'large');
+                    EXCEPTION
+                        WHEN duplicate_object THEN null;
+                    END $$;
+                `)
+
+                await conn.query(`
+                    create table if not exists cars (
                         id varchar(32) primary key,
                         name varchar(255) not null,
-                        surname varchar(255) not null,
-                        email varchar(255) unique not null,
-                        password varchar(255) not null,
-                        propic_url varchar(255) default null
+                        plate_no varchar(7) not null,
+                        tank_size int not null,
+                        size car_t not null,
+                        owner_id varchar(32) not null, -- owner's id
+                        -- owner_data jsonb not null, -- (not needed for now) the entire user object, microservice friendly stuff
+                        image_url varchar(255) default null
                     );
                 `);
                 await conn.query("commit");
@@ -37,7 +47,8 @@ const { Client } = require("pg");
             case "down":
                 
                 // await conn.query(`alter table users disable trigger all`);
-                await conn.query(`drop table if exists users cascade;`);
+                await conn.query(`drop table if exists cars cascade;`);
+                await conn.query(`drop type if exists car_t;`);
                 await conn.query("commit");
 
             break;

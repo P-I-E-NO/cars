@@ -2,7 +2,7 @@ use std::{env, time::{SystemTime, UNIX_EPOCH}};
 
 use serde::{Deserialize, Serialize};
 
-pub mod auth;
+pub mod cars;
 pub mod user_claims;
 
 #[derive(Serialize, Deserialize, Clone)]

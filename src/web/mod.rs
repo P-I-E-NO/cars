@@ -8,11 +8,10 @@ mod util;
 
 use std::{env, time::Duration};
 
-use axum::{extract::FromRef, routing::{get, post}, Router};
+use axum::{extract::FromRef, routing::{get, post, put}, Router};
 use log::info;
 use sqlx::postgres::{PgPoolOptions, Postgres};
 
-use crate::web::routes::auth::auth_routes;
 
 #[derive(Clone, FromRef)]
 pub struct AppState {
@@ -36,8 +35,8 @@ pub async fn build_app() -> Router {
     let state = AppState::new().await.unwrap();
     info!("state ok");
     let app = Router::new()
-        .with_state(state.clone())
-        .route("/", get(routes::main::root::index))
-        .merge(auth_routes(&state));
+        .route("/", put(routes::main::root::put_car))
+        .route("/", get(routes::main::root::get_cars))
+        .with_state(state.clone());
     app
 }

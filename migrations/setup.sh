@@ -1,8 +1,8 @@
 source .env
 
-node src/users.js down $TEST
+node src/cars.js down $TEST
 
-node src/users.js up $TEST
+node src/cars.js up $TEST
 
 echo "schema up"
 

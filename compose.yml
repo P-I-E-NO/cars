@@ -1,8 +1,8 @@
 version: '3.9'
 
 networks:
-  users-net:
-    name: users-net
+  cars-net:
+    name: cars-net
 
 volumes:
   users_pgdata:
@@ -10,10 +10,9 @@ volumes:
 
 services:
   postgres_db:
-    container_name: dockerissimo-postgres
     image: postgres:16.1
     networks:
-      - users-net
+      - cars-net
     environment:
       - POSTGRES_USER=dockerissimo_rust
       - POSTGRES_PASSWORD=pass
@@ -21,23 +20,21 @@ services:
     #volumes:
     #  - users_db_data:/var/lib/postgresql/data
     #  - users_pgdata:/var/lib/postgresql/data/pgdata
-    ports:
-      - "5432:5432"
   app:
-    container_name: dockerissimo-rust
+    container_name: cars-rust
     build:
       context: .
       network: host
     depends_on:
       - postgres_db
     networks:
-      - users-net
+      - cars-net
     environment:
       - CONN_URI=postgresql://dockerissimo_rust:pass@postgres_db:5432/fantastic_db
       - RUST_LOG=trace
       - JWT_SECRET=Poggaceo
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
       - ./src:/code/src
     entrypoint: ["cargo", "watch", "-x", "run"]
