@@ -5,7 +5,7 @@ use nanoid::nanoid;
 use crate::web::dto::{cars::put_car_request::CarSize, user_claims::UserClaims};
 
 #[derive(sqlx::FromRow, Serialize, Deserialize)]
-pub struct Car {
+pub struct Car { // i need to make these all strings, because sqlx doesnt want references, only owned types
     id: String,
     name: String,
     plate_no: String,

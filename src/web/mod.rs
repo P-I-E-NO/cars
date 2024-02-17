@@ -8,7 +8,7 @@ mod util;
 
 use std::{env, time::Duration};
 
-use axum::{extract::FromRef, routing::{get, post, put}, Router};
+use axum::{extract::FromRef, routing::{get, put}, Router};
 use log::info;
 use sqlx::postgres::{PgPoolOptions, Postgres};
 
