@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
 use sqlx::PgExecutor;
 use nanoid::nanoid;
+use utoipa::ToSchema;
 
 use crate::web::dto::{cars::put_car_request::CarSize, user_claims::UserClaims};
 
-#[derive(sqlx::FromRow, Serialize, Deserialize)]
+#[derive(sqlx::FromRow, Serialize, Deserialize, ToSchema)]
 pub struct Car { // i need to make these all strings, because sqlx doesnt want references, only owned types
     id: String,
     name: String,
