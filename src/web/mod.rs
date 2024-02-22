@@ -8,13 +8,14 @@ mod util;
 
 use std::{env, time::Duration};
 
-use axum::{extract::FromRef, routing::{get, put}, Router};
+use axum::{extract::FromRef, http::HeaderMap, response::IntoResponse, routing::{get, put}, Json, Router};
 use log::info;
+use serde_json::{json, Value};
 use sqlx::postgres::{PgPoolOptions, Postgres};
 use utoipa::{openapi::security::{Http, HttpAuthScheme, SecurityScheme}, Modify, OpenApi};
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::web::{dto::cars::put_car_request::{CarSize, GetCarsResponse, PutCarRequest, PutCarResponse}, models::cars::Car};
+use crate::web::{dto::cars::put_car_request::{CarSize, GetCarsResponse, PutCarRequest, PutCarResponse}, errors::HttpError, models::cars::Car};
 
 
 #[derive(Clone, FromRef)]
@@ -68,13 +69,22 @@ pub async fn build_app() -> Router {
         }
     }
 
+    async fn build_json_schema() -> impl IntoResponse {
+
+        let str_docs = ApiDoc::openapi().to_pretty_json().unwrap();
+        let mut headers = HeaderMap::new();
+        headers.insert("Content-Type", "application/json".parse().unwrap());
+
+        (headers, str_docs)
+    
+    }
+
     let state = AppState::new().await.unwrap();
     info!("state ok");
     let app = Router::new()
         .route("/", put(routes::main::root::put_car))
         .route("/", get(routes::main::root::get_cars))
-        .merge(SwaggerUi::new("/swagger")
-            .url(env::var("JSON_DOCS_URL").unwrap(), ApiDoc::openapi()))
+        .route("/json-schema", get(build_json_schema))
         .with_state(state.clone());
     app
 }
