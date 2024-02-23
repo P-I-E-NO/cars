@@ -1,6 +1,6 @@
 use axum::{extract::State, Json};
 
-use crate::web::{dto::{cars::put_car_request::{GetCarsResponse, PutCarRequest, PutCarResponse}, user_claims::UserClaims, Claim}, errors::HttpError, extractors::{token::Token, validate_body::ValidatedJson}, models::cars::{Car, Cars}, AppState};
+use crate::web::{dto::{car_claims::CarClaims, cars::put_car_request::{CarSize, GetCarsResponse, PutCarRequest, PutCarResponse}, user_claims::UserClaims, Claim}, errors::HttpError, extractors::{token::Token, validate_body::ValidatedJson}, models::cars::{Car, Cars}, AppState};
 
 #[utoipa::path(
     get,
@@ -58,7 +58,7 @@ pub async fn put_car(
     ValidatedJson(body): ValidatedJson<PutCarRequest>,
 ) -> Result<Json<PutCarResponse>, HttpError> {
 
-    let mut conn = s.pool.acquire().await?;
+    let mut conn = s.pool.begin().await?;
     let id = Car::add(
         &mut *conn,
         &body.name,
@@ -68,11 +68,26 @@ pub async fn put_car(
         &body.size
     ).await?;
 
+    let consumption = match body.size {
+        CarSize::SMALL => 0.10,
+        CarSize::MEDIUM => 0.15,
+        CarSize::LARGE => 0.20        
+    };
+
+    let car_token = Token::<CarClaims>::generate(CarClaims {
+        tank_size: body.tank_size,
+        car_id: id.clone(),
+        consumption
+    }).await?;
+
+    conn.commit().await?;
+
     Ok(
         Json(
             PutCarResponse {
                 success: true,
-                car_id: id
+                car_id: id,
+                car_token,
             }
         )
     )

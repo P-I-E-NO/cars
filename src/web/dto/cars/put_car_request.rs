@@ -4,7 +4,7 @@ use validator::Validate;
 
 use crate::web::models::cars::Car;
 
-#[derive(Deserialize, Serialize, sqlx::Type, ToSchema)]
+#[derive(Deserialize, Serialize, sqlx::Type, ToSchema, Clone)]
 #[sqlx(type_name="car_t", rename_all="lowercase")] // this is for sqlx, type_name is the type inside postgres
 #[serde(rename_all="lowercase")] // this is for the validator crate, when serving http requests
 pub enum CarSize {
@@ -27,6 +27,7 @@ pub struct PutCarRequest {
 pub struct PutCarResponse {
     pub success: bool,
     pub car_id: String,
+    pub car_token: String
 }
 
 #[derive(Serialize, ToSchema)]
