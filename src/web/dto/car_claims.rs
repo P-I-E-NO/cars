@@ -4,5 +4,6 @@ use serde::{Deserialize, Serialize};
 pub struct CarClaims {
     pub car_id: String,
     pub tank_size: i32,
-    pub consumption: f32
+    pub consumption: f32,
+    pub owner: String,
 }

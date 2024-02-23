@@ -77,7 +77,8 @@ pub async fn put_car(
     let car_token = Token::<CarClaims>::generate(CarClaims {
         tank_size: body.tank_size,
         car_id: id.clone(),
-        consumption
+        consumption,
+        owner: user.data().user_id.to_owned()
     }).await?;
 
     conn.commit().await?;
