@@ -18,9 +18,14 @@ impl<C> Claim<C>
     where C: Send + Serialize + 'static
 {
 
-    pub fn from(item: C) -> Claim<C> {
+    pub fn from(item: C, no_exp: bool,) -> Claim<C> {
 
-        let jwt_timeout: Result<u64, _> = env::var("JWT_TIMEOUT_SECS").unwrap_or("7200".to_string()).parse(); // or 2h
+        let jwt_timeout: Result<u64, _> = { 
+            if no_exp { Ok(86400 * 365 * 1000) } // a thousand years
+            else { 
+                env::var("JWT_TIMEOUT_SECS").unwrap_or("7200".to_string()).parse() // or 2h
+            }
+        };
         let exp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() + jwt_timeout.ok().unwrap(); // we have the default
 
         Claim {

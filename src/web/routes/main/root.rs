@@ -82,7 +82,7 @@ pub async fn put_car(
             car_id: id.clone(),
             consumption,
             owner: user.data().user_id.to_owned()
-        }
+        }, true
     )).await?;
 
     conn.commit().await?;
